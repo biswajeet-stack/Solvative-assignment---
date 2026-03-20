@@ -1,425 +1,465 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  Target, 
-  Search, 
-  Linkedin, 
-  TrendingUp, 
-  Users, 
-  MousePointer2, 
-  AlertCircle,
-  CheckCircle2,
-  Settings,
-  Briefcase,
-  Layers,
-  Activity,
-  ArrowUpRight,
-  ChevronRight,
-  LayoutDashboard,
-  BarChart,
-  Zap,
-  ShieldCheck,
-  Globe
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerFives Campaign Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        input[type=range] {
+            height: 12px;
+            -webkit-appearance: none;
+            margin: 10px 0;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #fbbf24;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -6px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .nav-btn.active {
+            background-color: #fbbf24;
+            color: #451a03;
+            font-weight: 700;
+            box-shadow: 0 10px 15px -3px rgba(251, 191, 36, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-white text-slate-900 min-h-screen">
 
-const App = () => {
-  const [activeTab, setActiveTab] = useState('strategy');
-  const [budget, setBudget] = useState(10000);
-  const [targetCPL, setTargetCPL] = useState(85);
-
-  // Simulation Forecasts
-  const forecast = useMemo(() => {
-    const leads = Math.floor(budget / targetCPL);
-    const mqls = Math.floor(leads * 0.45);
-    const sqls = Math.floor(mqls * 0.30);
-    const revenue = sqls * 1800; // Updated LTV for 2025
-    const roi = budget > 0 ? ((revenue - budget) / budget) * 100 : 0;
-
-    return { leads, mqls, sqls, revenue, roi };
-  }, [budget, targetCPL]);
-
-  // NavItem Component defined inside App for context
-  const NavItem = ({ id, label, icon: Icon }) => {
-    const isActive = activeTab === id;
-    return (
-      <button
-        onClick={() => setActiveTab(id)}
-        className={`group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 mb-2 w-full ${
-          isActive 
-          ? 'bg-amber-400 text-amber-950 font-bold shadow-lg shadow-amber-200/50' 
-          : 'text-gray-500 hover:bg-amber-50 hover:text-amber-600'
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          <Icon size={18} />
-          <span className="text-sm font-medium">{label}</span>
-        </div>
-        {isActive && <ChevronRight size={16} />}
-      </button>
-    );
-  };
-
-  return (
-    <div className="flex min-h-screen bg-white font-sans text-slate-900">
-      {/* Sidebar - Modern Minimalist */}
-      <aside className="w-64 bg-slate-50 border-r border-slate-200 fixed h-full flex flex-col p-6 overflow-y-auto">
-        <div className="flex items-center gap-2 mb-10 px-2">
-          <div className="bg-amber-400 p-2 rounded-xl shadow-sm">
-            <LayoutDashboard className="text-amber-950" size={20} />
-          </div>
-          <h1 className="text-xl font-black text-slate-800 tracking-tight text-nowrap">PeerFives</h1>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-50 border-r border-slate-200 fixed h-full flex flex-col p-6 overflow-y-auto">
+        <div class="flex items-center gap-2 mb-10 px-2">
+            <div class="bg-amber-400 p-2 rounded-xl shadow-sm">
+                <i data-lucide="layout-dashboard" class="text-amber-950 w-5 h-5"></i>
+            </div>
+            <h1 class="text-xl font-black text-slate-800 tracking-tight">PeerFives</h1>
         </div>
         
-        <nav className="flex-1">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Campaign Setup</p>
-          <NavItem id="strategy" label="Strategy" icon={Target} />
-          <NavItem id="google" label="Google Ads" icon={Search} />
-          <NavItem id="linkedin" label="LinkedIn Ads" icon={Linkedin} />
-          
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-8 mb-4 px-2">Analysis & Ops</p>
-          <NavItem id="performance" label="Perf. Analysis" icon={BarChart} />
-          <NavItem id="optimization" label="Optimization" icon={Zap} />
-          <NavItem id="tracking" label="Measurement" icon={Activity} />
-          <NavItem id="simulator" label="ROI Forecast" icon={TrendingUp} />
+        <nav class="flex-1 space-y-1">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Campaign Setup</p>
+            <button onclick="showTab('strategy')" id="btn-strategy" class="nav-btn active group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-gray-500 hover:bg-amber-50 hover:text-amber-600">
+                <div class="flex items-center gap-3"><i data-lucide="target" class="w-4 h-4"></i><span class="text-sm font-medium">Strategy</span></div>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-0 group-[.active]:opacity-100"></i>
+            </button>
+            <button onclick="showTab('google')" id="btn-google" class="nav-btn group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-gray-500 hover:bg-amber-50 hover:text-amber-600">
+                <div class="flex items-center gap-3"><i data-lucide="search" class="w-4 h-4"></i><span class="text-sm font-medium">Google Ads</span></div>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-0 group-[.active]:opacity-100"></i>
+            </button>
+            <button onclick="showTab('linkedin')" id="btn-linkedin" class="nav-btn group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-gray-500 hover:bg-amber-50 hover:text-amber-600">
+                <div class="flex items-center gap-3"><i data-lucide="linkedin" class="w-4 h-4"></i><span class="text-sm font-medium">LinkedIn Ads</span></div>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-0 group-[.active]:opacity-100"></i>
+            </button>
+
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-8 mb-4 px-2">Analysis & Ops</p>
+            <button onclick="showTab('performance')" id="btn-performance" class="nav-btn group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-gray-500 hover:bg-amber-50 hover:text-amber-600">
+                <div class="flex items-center gap-3"><i data-lucide="bar-chart" class="w-4 h-4"></i><span class="text-sm font-medium">Perf. Analysis</span></div>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-0 group-[.active]:opacity-100"></i>
+            </button>
+            <button onclick="showTab('optimization')" id="btn-optimization" class="nav-btn group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-gray-500 hover:bg-amber-50 hover:text-amber-600">
+                <div class="flex items-center gap-3"><i data-lucide="zap" class="w-4 h-4"></i><span class="text-sm font-medium">Optimization</span></div>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-0 group-[.active]:opacity-100"></i>
+            </button>
+            <button onclick="showTab('tracking')" id="btn-tracking" class="nav-btn group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-gray-500 hover:bg-amber-50 hover:text-amber-600">
+                <div class="flex items-center gap-3"><i data-lucide="activity" class="w-4 h-4"></i><span class="text-sm font-medium">Measurement</span></div>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-0 group-[.active]:opacity-100"></i>
+            </button>
+            <button onclick="showTab('simulator')" id="btn-simulator" class="nav-btn group flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 w-full text-gray-500 hover:bg-amber-50 hover:text-amber-600">
+                <div class="flex items-center gap-3"><i data-lucide="trending-up" class="w-4 h-4"></i><span class="text-sm font-medium">ROI Forecast</span></div>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-0 group-[.active]:opacity-100"></i>
+            </button>
         </nav>
 
-        <div className="mt-8 p-4 bg-amber-100/50 rounded-2xl border border-amber-200/50">
-          <p className="text-[10px] text-amber-800 font-bold uppercase mb-1 flex items-center gap-1">
-            <ShieldCheck size={10} /> Verified Strategy
-          </p>
-          <p className="text-[10px] text-amber-700 leading-tight font-medium">B2B Lead Gen for US/EU Market (100+ Employees)</p>
+        <div class="mt-8 p-4 bg-amber-100/50 rounded-2xl border border-amber-200/50">
+            <p class="text-[10px] text-amber-800 font-bold uppercase mb-1 flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3 h-3"></i> Verified Strategy
+            </p>
+            <p class="text-[10px] text-amber-700 leading-tight font-medium">B2B Lead Gen for US/EU Market (100+ Employees)</p>
         </div>
-      </aside>
+    </aside>
 
-      {/* Main Content Area */}
-      <main className="ml-64 flex-1 bg-white">
-        <div className="max-w-6xl mx-auto p-12">
-          {/* Top Bar */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
-            <div>
-              <h2 className="text-3xl font-black text-slate-900 leading-none">
-                {activeTab === 'performance' ? 'Weekly Analysis' : activeTab === 'optimization' ? 'Scaling Strategy' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + ' Overview'}
-              </h2>
-              <p className="text-slate-500 mt-2 text-sm font-medium italic">Peer-to-Peer Recognition Campaign 2025</p>
+    <!-- Main Content -->
+    <main class="ml-64 flex-1">
+        <div class="max-w-6xl mx-auto p-12">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
+                <div>
+                    <h2 id="tab-title" class="text-3xl font-black text-slate-900 leading-none">Strategy Overview</h2>
+                    <p class="text-slate-500 mt-2 text-sm font-medium italic">Peer-to-Peer Recognition Campaign 2025</p>
+                </div>
+                <div class="flex gap-3">
+                    <div class="bg-slate-100 px-4 py-2 rounded-full text-[10px] font-bold text-slate-600 flex items-center gap-2 border border-slate-200">
+                        <i data-lucide="globe" class="w-3 h-3 text-slate-400"></i> USA / EU Markets
+                    </div>
+                    <div class="bg-amber-100 px-4 py-2 rounded-full text-[10px] font-bold text-amber-700 flex items-center gap-2 border border-amber-200">
+                        <span class="w-2 h-2 bg-amber-500 rounded-full"></span> Tier 1 Target
+                    </div>
+                </div>
             </div>
-            <div className="flex gap-3">
-              <div className="bg-slate-100 px-4 py-2 rounded-full text-[10px] font-bold text-slate-600 flex items-center gap-2 border border-slate-200">
-                <Globe size={12} className="text-slate-400" /> USA / EU Markets
-              </div>
-              <div className="bg-amber-100 px-4 py-2 rounded-full text-[10px] font-bold text-amber-700 flex items-center gap-2 border border-amber-200">
-                <span className="w-2 h-2 bg-amber-500 rounded-full"></span> Tier 1 Target
-              </div>
+
+            <!-- Tab: Strategy -->
+            <div id="tab-strategy" class="tab-content active space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in">
+                    <div class="md:col-span-2 space-y-6">
+                        <section class="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group border border-slate-800">
+                            <i data-lucide="briefcase" class="absolute top-0 right-0 p-8 opacity-10 w-32 h-32"></i>
+                            <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-amber-400">
+                                <i data-lucide="briefcase" class="w-5 h-5"></i> The Isolation Crisis
+                            </h3>
+                            <p class="text-slate-300 leading-relaxed text-lg mb-6 relative z-10">
+                                Remote work has turned low recognition from a workplace annoyance into a 
+                                <span class="text-amber-400 font-bold italic"> silent productivity killer</span>. 
+                                PeerFives solves this by making the "daily grind" visible through instant peer rewards.
+                            </p>
+                            <div class="bg-white/10 p-5 rounded-2xl backdrop-blur-md border border-white/10 relative z-10">
+                                <p class="text-sm font-medium text-slate-200 italic leading-relaxed">
+                                    "Our 2025 campaign bridges the gap for 100+ employee firms, targeting HR decision-makers who need to stop the 'invisible worker' churn."
+                                </p>
+                            </div>
+                        </section>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-amber-400 p-6 rounded-[2rem] shadow-lg shadow-amber-200/50">
+                                <h4 class="text-[10px] font-black text-amber-950 uppercase tracking-widest mb-2 opacity-60">Campaign Goal</h4>
+                                <p class="font-black text-amber-950 text-2xl tracking-tighter">Qualified Demos</p>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 p-6 rounded-[2rem]">
+                                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Ideal Segment</h4>
+                                <p class="font-black text-slate-800 text-2xl tracking-tighter">100+ Personnel</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-sm space-y-6">
+                        <h3 class="font-bold text-lg text-slate-800 border-b border-slate-100 pb-4 flex items-center gap-2">
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-amber-500"></i> Key Pain Points
+                        </h3>
+                        <div class="space-y-4">
+                            <div><p class="text-xs font-black text-amber-600 uppercase mb-0.5">Retention</p><p class="text-sm font-semibold text-slate-600">Low recognition = High Resignation</p></div>
+                            <div><p class="text-xs font-black text-amber-600 uppercase mb-0.5">Burnout</p><p class="text-sm font-semibold text-slate-600">Invisible effort goes unrewarded</p></div>
+                            <div><p class="text-xs font-black text-amber-600 uppercase mb-0.5">Visibility</p><p class="text-sm font-semibold text-slate-600">Managers can't track remote wins</p></div>
+                            <div><p class="text-xs font-black text-amber-600 uppercase mb-0.5">Insights</p><p class="text-sm font-semibold text-slate-600">HR lacks peer-to-peer data</p></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          {/* Strategy Section */}
-          {activeTab === 'strategy' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="md:col-span-2 space-y-6">
-                <section className="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group border border-slate-800">
-                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Briefcase size={140} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-amber-400">
-                    <Briefcase size={20} /> The Isolation Crisis
-                  </h3>
-                  <p className="text-slate-300 leading-relaxed text-lg mb-6 relative z-10">
-                    Remote work has turned low recognition from a workplace annoyance into a 
-                    <span className="text-amber-400 font-bold italic"> silent productivity killer</span>. 
-                    PeerFives solves this by making the "daily grind" visible through instant peer rewards.
-                  </p>
-                  <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-md border border-white/10 relative z-10">
-                    <p className="text-sm font-medium text-slate-200 italic leading-relaxed">
-                      "Our 2025 campaign bridges the gap for 100+ employee firms, targeting HR decision-makers who need to stop the 'invisible worker' churn."
-                    </p>
-                  </div>
-                </section>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-amber-400 p-6 rounded-[2rem] shadow-lg shadow-amber-200/50">
-                    <h4 className="text-[10px] font-black text-amber-950 uppercase tracking-widest mb-2 opacity-60">Campaign Goal</h4>
-                    <p className="font-black text-amber-950 text-2xl tracking-tighter">Qualified Demos</p>
-                    <p className="text-xs text-amber-900 font-medium mt-1">High-intent SaaS leads.</p>
-                  </div>
-                  <div className="bg-slate-50 border border-slate-200 p-6 rounded-[2rem]">
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Ideal Segment</h4>
-                    <p className="font-black text-slate-800 text-2xl tracking-tighter">100+ Personnel</p>
-                    <p className="text-xs text-slate-500 font-medium mt-1">B2B E-commerce & Tech.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-sm space-y-6">
-                <h3 className="font-bold text-lg text-slate-800 border-b border-slate-100 pb-4 flex items-center gap-2">
-                  <AlertCircle size={18} className="text-amber-500" /> Key Pain Points
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    {t: "Retention", d: "Low recognition = High Resignation"},
-                    {t: "Burnout", d: "Invisible effort goes unrewarded"},
-                    {t: "Visibility", d: "Managers can't track remote wins"},
-                    {t: "Insights", d: "HR lacks peer-to-peer data"}
-                  ].map((p, i) => (
-                    <div key={i} className="group cursor-default">
-                      <p className="text-xs font-black text-amber-600 uppercase mb-0.5">{p.t}</p>
-                      <p className="text-sm font-semibold text-slate-600 leading-tight group-hover:text-slate-900 transition-colors">{p.d}</p>
+            <!-- Tab: Simulator -->
+            <div id="tab-simulator" class="tab-content space-y-6 animate-in fade-in">
+                <div class="bg-white border-2 border-amber-400 rounded-[2.5rem] p-10 shadow-2xl shadow-amber-100">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
+                        <div>
+                            <h3 class="text-3xl font-black text-slate-900 leading-none">ROI Simulation Tool</h3>
+                            <p class="text-slate-500 mt-2 font-medium">Dynamic forecasting for PeerFives 2025 growth.</p>
+                        </div>
+                        <div class="bg-amber-400 text-amber-950 p-8 rounded-3xl flex items-center gap-8 shadow-xl">
+                            <div class="text-center">
+                                <p class="text-[10px] uppercase font-black opacity-60 tracking-widest mb-1">Forecast Revenue</p>
+                                <p id="val-revenue" class="text-4xl font-black tracking-tighter">$0</p>
+                            </div>
+                            <div class="h-12 w-px bg-amber-950/10"></div>
+                            <div class="text-center">
+                                <p class="text-[10px] uppercase font-black opacity-60 tracking-widest mb-1">Forecast ROI</p>
+                                <p id="val-roi" class="text-4xl font-black tracking-tighter">0%</p>
+                            </div>
+                        </div>
                     </div>
-                  ))}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
+                        <div class="space-y-10">
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-end">
+                                    <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Monthly Ad Spend</label>
+                                    <span id="label-budget" class="text-2xl font-black text-slate-900 tracking-tighter">$10,000</span>
+                                </div>
+                                <input id="input-budget" type="range" min="5000" max="100000" step="5000" value="10000">
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-end">
+                                    <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Target CPL (Cost/Lead)</label>
+                                    <span id="label-cpl" class="text-2xl font-black text-slate-900 tracking-tighter">$85</span>
+                                </div>
+                                <input id="input-cpl" type="range" min="40" max="250" step="5" value="85">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="p-6 rounded-3xl border bg-amber-50 border-amber-200 text-center">
+                                <i data-lucide="mouse-pointer-2" class="text-amber-600 mb-2 w-5 h-5 mx-auto"></i>
+                                <p id="val-leads" class="text-3xl font-black tracking-tighter leading-none mb-2">0</p>
+                                <p class="text-[10px] uppercase font-black opacity-60 tracking-widest">Leads</p>
+                            </div>
+                            <div class="p-6 rounded-3xl border bg-slate-900 border-slate-800 text-white text-center">
+                                <i data-lucide="target" class="text-amber-400 mb-2 w-5 h-5 mx-auto"></i>
+                                <p id="val-mqls" class="text-3xl font-black tracking-tighter leading-none mb-2">0</p>
+                                <p class="text-[10px] uppercase font-black opacity-60 tracking-widest">MQLs</p>
+                            </div>
+                            <div class="p-6 rounded-3xl border bg-amber-50 border-amber-200 text-center">
+                                <i data-lucide="arrow-up-right" class="text-amber-600 mb-2 w-5 h-5 mx-auto"></i>
+                                <p id="val-sqls" class="text-3xl font-black tracking-tighter leading-none mb-2">0</p>
+                                <p class="text-[10px] uppercase font-black opacity-60 tracking-widest">SQLs</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          )}
 
-          {/* Performance Analysis Tab */}
-          {activeTab === 'performance' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {[
-                  { l: "CTR", v: "3.2%", d: "+0.4% vs LW", c: "text-amber-600" },
-                  { l: "Avg CPC", v: "₹192", d: "-₹12 vs LW", c: "text-slate-800" },
-                  { l: "Conv. Rate", v: "4.8%", d: "+1.2% vs LW", c: "text-green-600" },
-                  { l: "CPL", v: "₹5,840", d: "Target: ₹6.5k", c: "text-blue-600" }
-                ].map((s, i) => (
-                  <div key={i} className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{s.l}</p>
-                    <p className={`text-2xl font-black ${s.c}`}>{s.v}</p>
-                    <p className="text-[10px] font-bold text-slate-400 mt-1">{s.d}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
-                <h3 className="font-black text-xl mb-6">Weekly Segment Report</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase">
-                        <th className="pb-4 px-2">Segment</th>
-                        <th className="pb-4 px-2">Best Performing</th>
-                        <th className="pb-4 px-2">CTR</th>
-                        <th className="pb-4 px-2">Leads</th>
-                        <th className="pb-4 px-2">ROI Impact</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-sm">
-                      <tr className="border-b border-slate-50 group hover:bg-slate-50 transition-colors">
-                        <td className="py-4 px-2 font-bold">Audience</td>
-                        <td className="py-4 px-2">HR Directors (100-500 Staff)</td>
-                        <td className="py-4 px-2 font-semibold">3.8%</td>
-                        <td className="py-4 px-2">24</td>
-                        <td className="py-4 px-2 text-green-600 font-bold">High</td>
-                      </tr>
-                      <tr className="border-b border-slate-50 group hover:bg-slate-50 transition-colors">
-                        <td className="py-4 px-2 font-bold">Keywords</td>
-                        <td className="py-4 px-2">"peer to peer recognition"</td>
-                        <td className="py-4 px-2 font-semibold">4.5%</td>
-                        <td className="py-4 px-2">18</td>
-                        <td className="py-4 px-2 text-amber-600 font-bold">Medium</td>
-                      </tr>
-                      <tr className="group hover:bg-slate-50 transition-colors">
-                        <td className="py-4 px-2 font-bold">Creative</td>
-                        <td className="py-4 px-2">"Invisible Worker" Crisis Video</td>
-                        <td className="py-4 px-2 font-semibold">2.9%</td>
-                        <td className="py-4 px-2">12</td>
-                        <td className="py-4 px-2 text-blue-600 font-bold">Emerging</td>
-                      </tr>
-                    </tbody>
-                  </table>
+            <!-- Tab: Google -->
+            <div id="tab-google" class="tab-content animate-in fade-in">
+                <div class="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
+                    <h3 class="text-xl font-black mb-6">Google Search Configuration</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div>
+                                <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-3">Keywords (High Intent)</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-amber-50 border border-amber-100 rounded-lg text-xs font-bold text-amber-800">peer recognition tool</span>
+                                    <span class="px-3 py-1 bg-amber-50 border border-amber-100 rounded-lg text-xs font-bold text-amber-800">employee rewards platform</span>
+                                    <span class="px-3 py-1 bg-amber-50 border border-amber-100 rounded-lg text-xs font-bold text-amber-800">best recognition software</span>
+                                    <span class="px-3 py-1 bg-amber-50 border border-amber-100 rounded-lg text-xs font-bold text-amber-800">remote culture tool</span>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-red-50 border border-red-100 rounded-2xl">
+                                <p class="text-[10px] text-red-700 font-bold uppercase mb-1">Negative Keywords</p>
+                                <p class="text-xs text-red-600">free, diy, templates, cheap, salary, internship, definition</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-8 rounded-3xl text-white shadow-xl">
+                            <p class="text-[10px] text-amber-400 font-black mb-2 uppercase tracking-widest">Ad Preview</p>
+                            <p class="text-blue-400 text-xs underline mb-1">www.peerfives.com/remote-retention</p>
+                            <h4 class="font-bold text-lg leading-tight mb-2">End The Remote Isolation Crisis | Peer Recognition Tool</h4>
+                            <p class="text-xs text-slate-400">Stop 'Invisible Worker' turnover. Automate appreciation and boost team morale by 31%. Start trial.</p>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          )}
 
-          {/* Optimization Tab */}
-          {activeTab === 'optimization' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-amber-400 rounded-3xl p-8 text-amber-950 shadow-xl shadow-amber-100">
-                  <h3 className="font-black text-xl mb-4 flex items-center gap-2">
-                    <Zap size={20} /> Optimization Phase 1
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="bg-white/30 p-4 rounded-2xl backdrop-blur-sm">
-                      <h4 className="font-bold text-sm mb-1 uppercase text-[10px]">What to Check First</h4>
-                      <p className="text-sm font-medium">Verify landing page conversion rate (CVR) and Calendly loading speed across US/EU regions.</p>
+            <!-- Tab: Performance Analysis -->
+            <div id="tab-performance" class="tab-content animate-in fade-in space-y-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">CTR</p>
+                        <p class="text-2xl font-black text-amber-600">3.2%</p>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1">+0.4% vs LW</p>
                     </div>
-                    <div className="bg-white/30 p-4 rounded-2xl backdrop-blur-sm">
-                      <h4 className="font-bold text-sm mb-1 uppercase text-[10px]">Demographic Tuning</h4>
-                      <p className="text-sm font-medium">Exclude low-performing regions (e.g., South-East US states with low SaaS adoption) and reallocate budget to Tech Hubs.</p>
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Avg CPC</p>
+                        <p class="text-2xl font-black text-slate-800">₹192</p>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1">-₹12 vs LW</p>
                     </div>
-                  </div>
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Conv. Rate</p>
+                        <p class="text-2xl font-black text-green-600">4.8%</p>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1">+1.2% vs LW</p>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">CPL</p>
+                        <p class="text-2xl font-black text-blue-600">₹5,840</p>
+                        <p class="text-[10px] font-bold text-slate-400 mt-1">Target: ₹6.5k</p>
+                    </div>
                 </div>
-
-                <div className="bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden">
-                  <h3 className="font-black text-xl mb-4 text-amber-400">Scaling Strategy</h3>
-                  <div className="space-y-4 relative z-10">
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-xs font-bold text-slate-400 mb-1">AUDIENCE</p>
-                      <p className="text-sm">Broaden LinkedIn targeting to "Culture Officers" and "Employee Well-being leads" to capture more interest.</p>
+                <div class="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+                    <h3 class="font-black text-xl mb-6">Weekly Segment Report</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase">
+                                    <th class="pb-4 px-2">Segment</th>
+                                    <th className="pb-4 px-2">Best Performing</th>
+                                    <th className="pb-4 px-2">CTR</th>
+                                    <th className="pb-4 px-2">Leads</th>
+                                    <th className="pb-4 px-2">ROI Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="border-b border-slate-50">
+                                    <td class="py-4 px-2 font-bold">Audience</td>
+                                    <td class="py-4 px-2">HR Directors (100-500 Staff)</td>
+                                    <td class="py-4 px-2 font-semibold">3.8%</td>
+                                    <td class="py-4 px-2">24</td>
+                                    <td class="py-4 px-2 text-green-600 font-bold">High</td>
+                                </tr>
+                                <tr class="border-b border-slate-50">
+                                    <td class="py-4 px-2 font-bold">Keywords</td>
+                                    <td class="py-4 px-2">"peer to peer recognition"</td>
+                                    <td class="py-4 px-2 font-semibold">4.5%</td>
+                                    <td class="py-4 px-2">18</td>
+                                    <td class="py-4 px-2 text-amber-600 font-bold">Medium</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4 px-2 font-bold">Creative</td>
+                                    <td class="py-4 px-2">"Invisible Worker" Crisis Video</td>
+                                    <td class="py-4 px-2 font-semibold">2.9%</td>
+                                    <td class="py-4 px-2">12</td>
+                                    <td class="py-4 px-2 text-blue-600 font-bold">Emerging</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-xs font-bold text-slate-400 mb-1">BIDDING</p>
-                      <p className="text-sm">Shift Google Ads to "Target CPA" once 50 conversions are achieved to stabilize the ₹6,000 CPL.</p>
-                    </div>
-                  </div>
-                  <TrendingUp size={120} className="absolute -bottom-10 -right-10 opacity-5 rotate-12" />
                 </div>
-              </div>
             </div>
-          )}
-
-          {/* Simulator Section */}
-          {activeTab === 'simulator' && (
-            <div className="animate-in zoom-in-95 duration-500">
-              <div className="bg-white border-2 border-amber-400 rounded-[2.5rem] p-10 shadow-2xl shadow-amber-100">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
-                  <div>
-                    <h3 className="text-3xl font-black text-slate-900 leading-none">ROI Simulation Tool</h3>
-                    <p className="text-slate-500 mt-2 font-medium">Dynamic forecasting for PeerFives 2025 growth.</p>
-                  </div>
-                  <div className="bg-amber-400 text-amber-950 p-8 rounded-3xl flex items-center gap-8 shadow-xl">
-                    <div className="text-center">
-                      <p className="text-[10px] uppercase font-black opacity-60 tracking-widest mb-1">Forecast Revenue</p>
-                      <p className="text-4xl font-black tracking-tighter">${forecast.revenue.toLocaleString()}</p>
+            
+            <!-- Tab: Optimization -->
+            <div id="tab-optimization" class="tab-content animate-in fade-in space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-amber-400 rounded-3xl p-8 text-amber-950 shadow-xl shadow-amber-100">
+                        <h3 class="font-black text-xl mb-4 flex items-center gap-2">
+                            <i data-lucide="zap" class="w-5 h-5"></i> Optimization Phase 1
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/30 p-4 rounded-2xl backdrop-blur-sm">
+                                <h4 class="font-bold text-[10px] mb-1 uppercase tracking-widest">Primary Checklist</h4>
+                                <p class="text-sm font-medium leading-relaxed">Verify landing page CVR and demo form friction. Testing Calendly loading speed for EU regions.</p>
+                            </div>
+                            <div class="bg-white/30 p-4 rounded-2xl backdrop-blur-sm">
+                                <h4 class="font-bold text-[10px] mb-1 uppercase tracking-widest">Demographic Tuning</h4>
+                                <p class="text-sm font-medium leading-relaxed">Excluding low-performing US states with <100 employee density. Reallocating budget to Tier 1 Tech hubs.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="h-12 w-px bg-amber-950/10"></div>
-                    <div className="text-center">
-                      <p className="text-[10px] uppercase font-black opacity-60 tracking-widest mb-1">Forecast ROI</p>
-                      <p className="text-4xl font-black tracking-tighter">{forecast.roi.toFixed(0)}%</p>
+                    <div class="bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden border border-slate-800">
+                        <h3 class="font-black text-xl mb-4 text-amber-400">Scaling Strategy</h3>
+                        <div class="space-y-4 relative z-10">
+                            <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
+                                <p class="text-[10px] font-bold text-slate-400 mb-1 tracking-widest">AUDIENCE</p>
+                                <p class="text-sm">Broaden LinkedIn targeting to "Culture Officers" and "People Success leads" in mid-market firms.</p>
+                            </div>
+                            <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
+                                <p class="text-[10px] font-bold text-slate-400 mb-1 tracking-widest">BIDDING</p>
+                                <p class="text-sm">Shift to Target CPA once conversion volume hits 50/month to stabilize at ₹6,000 CPL.</p>
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-                  <div className="space-y-10">
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-end">
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Monthly Ad Spend</label>
-                        <span className="text-2xl font-black text-slate-900 tracking-tighter">${budget.toLocaleString()}</span>
-                      </div>
-                      <input 
-                        type="range" min="5000" max="100000" step="5000" 
-                        value={budget} onChange={(e) => setBudget(Number(e.target.value))}
-                        className="w-full h-3 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                      />
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-end">
-                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Target CPL (Cost/Lead)</label>
-                        <span className="text-2xl font-black text-slate-900 tracking-tighter">${targetCPL}</span>
-                      </div>
-                      <input 
-                        type="range" min="40" max="250" step="5" 
-                        value={targetCPL} onChange={(e) => setTargetCPL(Number(e.target.value))}
-                        className="w-full h-3 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    {[
-                      { label: "Leads", val: forecast.leads, icon: MousePointer2, col: "amber" },
-                      { label: "MQLs", val: forecast.mqls, icon: Target, col: "slate" },
-                      { label: "SQLs", val: forecast.sqls, icon: ArrowUpRight, col: "amber" }
-                    ].map((card, i) => (
-                      <div key={i} className={`p-6 rounded-3xl border ${card.col === 'amber' ? 'bg-amber-50 border-amber-200 shadow-sm shadow-amber-100' : 'bg-slate-900 border-slate-800 text-white'} flex flex-col justify-between items-center text-center transition-transform hover:scale-105`}>
-                        <card.icon className={`${card.col === 'amber' ? 'text-amber-600' : 'text-amber-400'} mb-2`} size={20} />
-                        <p className="text-3xl font-black tracking-tighter leading-none mb-2">{card.val}</p>
-                        <p className="text-[10px] uppercase font-black opacity-60 tracking-widest">{card.label}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-12 pt-8 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold text-slate-400 italic">
-                  <span>*Forecast assumes a 4.5% conversion rate on P2P-specific keywords.</span>
-                  <div className="flex gap-4">
-                    <span className="flex items-center gap-1"><CheckCircle2 size={12} className="text-green-500" /> Live Projection</span>
-                    <span className="flex items-center gap-1"><CheckCircle2 size={12} className="text-green-500" /> Scaling Mode</span>
-                  </div>
-                </div>
-              </div>
             </div>
-          )}
-          
-          {/* Detailed sections for Google, LinkedIn, and Tracking */}
-          {activeTab === 'google' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
-                <h3 className="text-xl font-black mb-6">Google Search Configuration</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Keyword Selection (High Intent)</p>
-                    <div className="flex flex-wrap gap-2">
-                      {["peer to peer recognition", "employee rewards system", "culture platform", "workplace appreciation", "peer fives tool"].map(k => (
-                        <span key={k} className="px-3 py-1 bg-amber-50 border border-amber-100 rounded-lg text-xs font-bold text-amber-800">{k}</span>
-                      ))}
-                    </div>
-                    <div className="p-4 bg-red-50 border border-red-100 rounded-2xl">
-                       <p className="text-xs text-red-700 font-bold uppercase mb-1">Negative Keywords</p>
-                       <p className="text-xs text-red-600">free, diy, templates, cheap, salary, internship, sample policy</p>
-                    </div>
-                  </div>
-                  <div className="bg-slate-900 p-6 rounded-2xl text-white">
-                    <p className="text-[10px] text-amber-400 font-black mb-2 uppercase">Ad Copy 1</p>
-                    <p className="text-blue-400 text-xs underline mb-1">www.peerfives.com/remote-retention</p>
-                    <p className="font-bold text-lg leading-tight mb-2">End The Remote Isolation Crisis | Peer Recognition Tool</p>
-                    <p className="text-xs text-slate-400">Stop 'Invisible Worker' turnover. Automate appreciation and boost team morale by 31%. Start your free trial.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {activeTab === 'linkedin' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="bg-[#0077b5] p-3 rounded-xl"><Linkedin className="text-white" size={24} /></div>
-                  <h3 className="text-xl font-black">LinkedIn ABM Campaign</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <p className="text-xs font-bold text-slate-400 uppercase">Targeting Parameters</p>
-                    <div className="space-y-2">
-                       <div className="flex justify-between text-sm py-2 border-b border-slate-100"><span>Job Titles</span><span className="font-bold">CHRO, VP People, HR Director</span></div>
-                       <div className="flex justify-between text-sm py-2 border-b border-slate-100"><span>Company Size</span><span className="font-bold">100 - 5,000 Employees</span></div>
-                       <div className="flex justify-between text-sm py-2 border-b border-slate-100"><span>Member Interests</span><span className="font-bold">Employee Retention, Culture</span></div>
+            <!-- Tab: Tracking -->
+            <div id="tab-tracking" class="tab-content animate-in fade-in space-y-6">
+                <div class="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
+                    <h3 class="text-xl font-black mb-8 flex items-center gap-2"><i data-lucide="activity" class="text-amber-500"></i> Event Mapping</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div><p class="text-xs font-black text-slate-800 font-mono">demo_request_click</p><p class="text-[10px] text-slate-400 italic">Triggers on all CTA clicks</p></div>
+                            <span class="text-[9px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100">GA4 Event</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div><p class="text-xs font-black text-slate-800 font-mono">calendly_meeting_booked</p><p class="text-[10px] text-slate-400 italic">Fired upon success confirmation</p></div>
+                            <span class="text-[9px] font-black uppercase text-green-600 bg-green-50 px-2 py-1 rounded border border-green-100">Conversion</span>
+                        </div>
+                        <div class="flex justify-between items-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div><p class="text-xs font-black text-slate-800 font-mono">roi_calc_interaction</p><p class="text-[10px] text-slate-400 italic">User adjusted sliders on site</p></div>
+                            <span class="text-[9px] font-black uppercase text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">Engagement</span>
+                        </div>
                     </div>
-                  </div>
-                  <div className="bg-amber-400 p-6 rounded-2xl flex flex-col justify-center">
-                     <p className="text-amber-950 font-black text-2xl italic leading-tight mb-4">"Isolation isn't a distance problem. It's a recognition problem."</p>
-                     <button className="bg-amber-950 text-white text-[10px] font-black uppercase px-4 py-2 rounded-full self-start">Ad Creative Preview</button>
-                  </div>
                 </div>
-              </div>
             </div>
-          )}
+            
+            <!-- Tab: LinkedIn -->
+            <div id="tab-linkedin" class="tab-content animate-in fade-in space-y-6">
+                <div class="bg-[#0077b5] p-10 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
+                    <i data-lucide="linkedin" class="absolute -bottom-10 -right-10 w-48 h-48 opacity-10 rotate-12"></i>
+                    <h3 class="text-2xl font-black mb-6 flex items-center gap-3"><i data-lucide="linkedin"></i> ABM Target Setup</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                        <div class="space-y-4">
+                            <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Parameters</p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm py-2 border-b border-white/10"><span>Job Titles</span><span class="font-bold">CHRO, VP People, HR Director</span></div>
+                                <div class="flex justify-between text-sm py-2 border-b border-white/10"><span>Company Size</span><span class="font-bold">100 - 5,000 Employees</span></div>
+                                <div class="flex justify-between text-sm py-2"><span>Interests</span><span class="font-bold">Employee Retention, Org Culture</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-white/10 p-6 rounded-3xl backdrop-blur-sm border border-white/10">
+                            <p class="text-amber-300 font-black text-xl italic leading-tight mb-4">"The screen isn't the distance. Silence is."</p>
+                            <p class="text-xs opacity-70">Creative Visual: A split screen showing a quiet home-office vs a vibrant digital 'High Five' feed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-          {activeTab === 'tracking' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-sm">
-                 <h3 className="text-xl font-black mb-6">GTM & GA4 Technical Tags</h3>
-                 <div className="space-y-3">
-                   {[
-                     {e: "demo_request_click", d: "Triggers on all 'Book Demo' buttons"},
-                     {e: "calendly_meeting_booked", d: "Conversion event fired on confirmation iframe"},
-                     {e: "roi_calc_interaction", d: "Tracks usage of the value calculator"},
-                     {e: "high_intent_page_scroll", d: "50% scroll on the US Features page"}
-                   ].map((t, i) => (
-                     <div key={i} className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                       <span className="text-xs font-mono font-bold text-slate-700">{t.e}</span>
-                       <span className="text-[10px] text-slate-400 italic">{t.d}</span>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-            </div>
-          )}
         </div>
-      </main>
-    </div>
-  );
-};
+    </main>
 
-export default App;
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Tab Navigation Logic
+        function showTab(tabId) {
+            // Update UI buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + tabId).classList.add('active');
+
+            // Update visible content
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            // Update title
+            const titles = {
+                strategy: "Strategy Overview",
+                google: "Google Search Ads",
+                linkedin: "LinkedIn ABM Setup",
+                performance: "Weekly Analysis",
+                optimization: "Scaling Strategy",
+                tracking: "Measurement Setup",
+                simulator: "ROI Forecast Tool"
+            };
+            document.getElementById('tab-title').innerText = titles[tabId];
+            
+            // Re-run icon creation for newly visible elements
+            lucide.createIcons();
+        }
+
+        // Simulator Logic
+        const budgetInput = document.getElementById('input-budget');
+        const cplInput = document.getElementById('input-cpl');
+
+        function updateForecast() {
+            const budget = parseInt(budgetInput.value);
+            const cpl = parseInt(cplInput.value);
+
+            // Calculations
+            const leads = Math.floor(budget / cpl);
+            const mqls = Math.floor(leads * 0.45);
+            const sqls = Math.floor(mqls * 0.30);
+            const revenue = sqls * 1800;
+            const roi = budget > 0 ? ((revenue - budget) / budget) * 100 : 0;
+
+            // Update Labels
+            document.getElementById('label-budget').innerText = '$' + budget.toLocaleString();
+            document.getElementById('label-cpl').innerText = '$' + cpl;
+
+            // Update Value Cards
+            document.getElementById('val-revenue').innerText = '$' + revenue.toLocaleString();
+            document.getElementById('val-roi').innerText = roi.toFixed(0) + '%';
+            document.getElementById('val-leads').innerText = leads;
+            document.getElementById('val-mqls').innerText = mqls;
+            document.getElementById('val-sqls').innerText = sqls;
+        }
+
+        budgetInput.addEventListener('input', updateForecast);
+        cplInput.addEventListener('input', updateForecast);
+
+        // Initial run
+        updateForecast();
+    </script>
+</body>
+</html>
